@@ -1,7 +1,21 @@
 from ncclient import manager
 from argparse import ArgumentParser
+import shelve
 
-class Device():
+class AttrDisplay:
+    "Provides an inheritable display overload method that shows instances with their class names and a name=value pair for each attribute stored on the instances itself (but not attrs inherited from its classes). Can be mixed into any class, and will work on any instance."
+    
+    def gatherAttrs(self):
+        attrs = []
+        for key in sorted(self.__dict__):
+            attrs.append('%s=%s' % (key, getattr(self, key)))
+        return ', '.join(attrs)
+    
+    def __repr__(self):
+        return '[%s: %s]' % (self.__class__.__name__, self.gatherAttrs())
+
+
+class Device(AttrDisplay):
   "Questa classe descrive un device"
   def __init__(self, devicename, username, password):
     self.devicename = devicename
@@ -20,23 +34,23 @@ def netconfrequest(subtree_filter, device):
 if __name__ == '__main__':
   
   #python3.9 labnet.py --devicename mivpe015 --username antonio --password admin
-  parser = ArgumentParser()
-  parser.add_argument("--devicename", required = "True")
-  parser.add_argument("--username", required = "True")
-  parser.add_argument("--password", required = "True")
-  args = parser.parse_args()
+  #parser = ArgumentParser()
+  #parser.add_argument("--devicename", required = "True")
+  #parser.add_argument("--username", required = "True")
+  #parser.add_argument("--password", required = "True")
+  #args = parser.parse_args()
   
-  devicename = args.devicename
-  username = args.username
-  password = args.password
+  #devicename = args.devicename
+  #username = args.username
+  #password = args.password
    
   #definisco un istanza della classe Device che è a sua volta definita nel file Device.py
-  dev = Device(devicename,username,password)
+  #dev = Device(devicename,username,password)
   
   # device è il metodo che si connette alla macchina in campo  
-  device = dev.connectnetconf()
+  #device = dev.connectnetconf()
 
-  D = dict()
+  #D = dict()
   
   #Questo ciclo for è il cuore del programma, mi crea un dizionario D con tutti i dati estratti dal device.
   
@@ -64,8 +78,29 @@ if __name__ == '__main__':
           </isis>
           """
  
-  D['device'] = netconfrequest(stringaxml, device)
+  #D['device'] = netconfrequest(stringaxml, device)
   
   
 
-  print(D['device'])
+  #print(D['device'])
+
+  mivpe015 = Device('mivpe015', 'antonio', 'admin')
+  mivpe015.data = netconfrequest(stringaxml, mivpe015.connectnetconf())
+  #print(netconfrequest(stringaxml, mivpe015.connectnetconf()))
+  #print(mivpe015)
+
+  mivpe016 = Device('mivpe016', 'antonio', 'admin')
+  mivpe016.data = netconfrequest(stringaxml, mivpe015.connectnetconf())
+  #print(netconfrequest(stringaxml, mivpe016.connectnetconf()))
+  #print(mivpe016)
+
+  db = shelve.open('devicedb')
+  for obj in (mivpe015, mivpe016):
+      db[obj.devicename] = obj
+  db.close()
+
+  db = shelve.open('devicedb')
+  print(len(db))
+  for key in db:
+     print(key, '=>', db[key])
+  #print(list(db.keys()))
