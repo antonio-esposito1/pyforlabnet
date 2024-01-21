@@ -161,12 +161,28 @@ if __name__ == '__main__':
         for obj in (mivpe015, mivpe016, mivar102, mivar202, navar101, navar201, navpe225, navpe226, mivrr101, bovrr201):
             db[obj.devicename] = obj
         db.close()
+
      elif scelta == 'R':        
         db = shelve.open('devicedb')
         print(len(db))
         for key in db:
            print(key, '=>', db[key])
         print(list(db.keys()))
+
+     elif scelta == 'C':
+        print('Compara due db \n') 
+        db1 = shelve.open(input('inserisci il nome del primo db: '))
+        db2 = shelve.open(input('inserisci il nome del secondo db: '))
+        dev = input('inserisci il nome del device sotto analisi: ')
+        print(len(db1)), print(len(db2))
+        
+        
+
+        if db1[dev] == db2[dev]:
+           print('nessuna differenza')
+        else:
+          print(db1[dev].isis_neighbors)
+          print(db2[dev].isis_neighbors)
 
 
   timestr = time.strftime("%Y%m%d-%H%M%S")
