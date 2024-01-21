@@ -125,53 +125,54 @@ def netconf_requests_bgp_vpnv4_unicast_neighbors(device):
    return device.bgp_vpnv4_unicast_neighbors
 
 
-
 if __name__ == '__main__':
 
-  
+  def switch(scelta):
+     if scelta == 'A':  
+        mivpe015 = XR_VPE('mivpe015', 'antonio', 'admin')
+        netconf_requests_isis_neighbors(mivpe015)
+        netconf_requests_bgp_vpnv4_unicast_neighbors(mivpe015)
+        mivpe016 = XR_VPE('mivpe016', 'antonio', 'admin')
+        netconf_requests_isis_neighbors(mivpe016)
+        netconf_requests_bgp_vpnv4_unicast_neighbors(mivpe016)
+        mivar102 = XR_VPE('mivar102', 'antonio', 'admin')
+        netconf_requests_isis_neighbors(mivar102)
+        mivar202 = XR_VPE('mivar202', 'antonio', 'admin')
+        netconf_requests_isis_neighbors(mivar202)
+        navpe225 = XR_VPE('navpe225', 'antonio', 'admin')
+        netconf_requests_isis_neighbors(navpe225)
+        netconf_requests_bgp_vpnv4_unicast_neighbors(navpe225)
+        navpe226 = XR_VPE('navpe226', 'antonio', 'admin')
+        netconf_requests_isis_neighbors(navpe226)
+        netconf_requests_bgp_vpnv4_unicast_neighbors(navpe226)
+        navar101 = XR_VPE('navar101', 'antonio', 'admin')
+        netconf_requests_isis_neighbors(navar101)
+        navar201 = XR_VPE('navar201', 'antonio', 'admin')
+        netconf_requests_isis_neighbors(navar201)
+        mivrr101 = XR_VPE('mivrr101', 'antonio', 'admin')
+        netconf_requests_isis_neighbors(mivrr101)
+        netconf_requests_bgp_vpnv4_unicast_neighbors(mivrr101)
+        bovrr201 = XR_VPE('bovrr201', 'antonio', 'admin')
+        netconf_requests_isis_neighbors(bovrr201)
+        netconf_requests_bgp_vpnv4_unicast_neighbors(bovrr201)
+
+
+        db = shelve.open('devicedb-' + timestr)
+        for obj in (mivpe015, mivpe016, mivar102, mivar202, navar101, navar201, navpe225, navpe226, mivrr101, bovrr201):
+            db[obj.devicename] = obj
+        db.close()
+     elif scelta == 'R':        
+        db = shelve.open('devicedb')
+        print(len(db))
+        for key in db:
+           print(key, '=>', db[key])
+        print(list(db.keys()))
+
+
   timestr = time.strftime("%Y%m%d-%H%M%S")
-  print (timestr)
-    
-  mivpe015 = XR_VPE('mivpe015', 'antonio', 'admin')
-  netconf_requests_isis_neighbors(mivpe015)
-  netconf_requests_bgp_vpnv4_unicast_neighbors(mivpe015)
-  #print(mivpe015)
-  mivpe016 = XR_VPE('mivpe016', 'antonio', 'admin')
-  netconf_requests_isis_neighbors(mivpe016)
-  netconf_requests_bgp_vpnv4_unicast_neighbors(mivpe016)
-  #print(mivpe016)
-  mivar102 = XR_VPE('mivar102', 'antonio', 'admin')
-  netconf_requests_isis_neighbors(mivar102)
-  mivar202 = XR_VPE('mivar202', 'antonio', 'admin')
-  netconf_requests_isis_neighbors(mivar202)
-  navpe225 = XR_VPE('navpe225', 'antonio', 'admin')
-  netconf_requests_isis_neighbors(navpe225)
-  netconf_requests_bgp_vpnv4_unicast_neighbors(navpe225)
-  navpe226 = XR_VPE('navpe226', 'antonio', 'admin')
-  netconf_requests_isis_neighbors(navpe226)
-  netconf_requests_bgp_vpnv4_unicast_neighbors(navpe226)
-  navar101 = XR_VPE('navar101', 'antonio', 'admin')
-  netconf_requests_isis_neighbors(navar101)
-  navar201 = XR_VPE('navar201', 'antonio', 'admin')
-  netconf_requests_isis_neighbors(navar201)
-  mivrr101 = XR_VPE('mivrr101', 'antonio', 'admin')
-  netconf_requests_isis_neighbors(mivrr101)
-  netconf_requests_bgp_vpnv4_unicast_neighbors(mivrr101)
-  bovrr201 = XR_VPE('bovrr201', 'antonio', 'admin')
-  netconf_requests_isis_neighbors(bovrr201)
-  netconf_requests_bgp_vpnv4_unicast_neighbors(bovrr201)
+  scelta = input('fai una scelta: seleziona A per aggiornare il dB e R per leggere il db: ')
+  switch(scelta)
   
-
-  db = shelve.open('devicedb-' + timestr)
-  for obj in (mivpe015, mivpe016, mivar102, mivar202, navar101, navar201, navpe225, navpe226, mivrr101, bovrr201):
-      db[obj.devicename] = obj
-  db.close()
-
-  db = shelve.open('devicedb')
-  print(len(db))
-  for key in db:
-     print(key, '=>', db[key])
-  print(list(db.keys()))
   
   # print(db['mivpe015'])
   # db.close()
