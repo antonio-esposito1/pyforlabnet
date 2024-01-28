@@ -2,6 +2,7 @@ from ncclient import manager
 from argparse import ArgumentParser
 import shelve
 import time
+import pickle
 
 class AttrDisplay:
     "Provides an inheritable display overload method that shows instances with their class names and a name=value pair for each attribute stored on the instances itself (but not attrs inherited from its classes). Can be mixed into any class, and will work on any instance."
@@ -128,7 +129,8 @@ def netconf_requests_bgp_vpnv4_unicast_neighbors(device):
 if __name__ == '__main__':
 
   def switch(scelta):
-     if scelta == 'A':  
+     if scelta == 'A':
+        
         mivpe015 = XR_VPE('mivpe015', 'antonio', 'admin')
         netconf_requests_isis_neighbors(mivpe015)
         netconf_requests_bgp_vpnv4_unicast_neighbors(mivpe015)
@@ -154,21 +156,26 @@ if __name__ == '__main__':
         netconf_requests_bgp_vpnv4_unicast_neighbors(mivrr101)
         bovrr201 = XR_VPE('bovrr201', 'antonio', 'admin')
         netconf_requests_isis_neighbors(bovrr201)
-        netconf_requests_bgp_vpnv4_unicast_neighbors(bovrr201)
+        netconf_requests_bgp_vpnv4_unicast_neighbors(bovrr201)          
 
 
         db = shelve.open('devicedb-' + timestr)
         for obj in (mivpe015, mivpe016, mivar102, mivar202, navar101, navar201, navpe225, navpe226, mivrr101, bovrr201):
             db[obj.devicename] = obj
         db.close()
+        
+        
+        file = open('filename', 'wb')
+        pickle.dump(mivpe015, file)
+        
 
-     elif scelta == 'R':        
-        db = shelve.open('devicedb')
+     elif scelta == 'R':
+        db = shelve.open('devicedb-20240127-144257')
         print(len(db))
         for key in db:
-           print(key, '=>', db[key])
+           print(key, '=>', db[key])      
         print(list(db.keys()))
-
+       
      elif scelta == 'C':
         print('Compara due db \n') 
         db1 = shelve.open(input('inserisci il nome del primo db: '))
