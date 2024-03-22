@@ -1,6 +1,7 @@
 from ncclient import manager
-import shelve
-import time
+import shelve, time, argparse
+from getpass import getpass
+
 
 class AttrDisplay:
     "Provides an inheritable display overload method that shows instances with their class names and a name=value pair for each attribute stored on the instances itself (but not attrs inherited from its classes). Can be mixed into any class, and will work on any instance."
@@ -123,49 +124,46 @@ def netconf_requests_bgp_vpnv4_unicast_neighbors(device):
    #print(device.bgp_vpnv4_unicast_neighbor)
    return device.bgp_vpnv4_unicast_neighbors
 
-
 if __name__ == '__main__':
-
-    mivpe015 = XR_VPE('mivpe015', 'antonio', 'admin')
-    netconf_requests_isis_neighbors(mivpe015)
-    netconf_requests_bgp_vpnv4_unicast_neighbors(mivpe015)
-    mivpe016 = XR_VPE('mivpe016', 'antonio', 'admin')
-    netconf_requests_isis_neighbors(mivpe016)
-    netconf_requests_bgp_vpnv4_unicast_neighbors(mivpe016)
-    mivar102 = XR_VPE('mivar102', 'antonio', 'admin')
-    netconf_requests_isis_neighbors(mivar102)
-    mivar202 = XR_VPE('mivar202', 'antonio', 'admin')
-    netconf_requests_isis_neighbors(mivar202)
-    navpe225 = XR_VPE('navpe225', 'antonio', 'admin')
-    netconf_requests_isis_neighbors(navpe225)
-    netconf_requests_bgp_vpnv4_unicast_neighbors(navpe225)
-    navpe226 = XR_VPE('navpe226', 'antonio', 'admin')
-    netconf_requests_isis_neighbors(navpe226)
-    netconf_requests_bgp_vpnv4_unicast_neighbors(navpe226)
-    navar101 = XR_VPE('navar101', 'antonio', 'admin')
-    netconf_requests_isis_neighbors(navar101)
-    navar201 = XR_VPE('navar201', 'antonio', 'admin')
-    netconf_requests_isis_neighbors(navar201)
-    mivrr101 = XR_VPE('mivrr101', 'antonio', 'admin')
-    netconf_requests_isis_neighbors(mivrr101)
-    netconf_requests_bgp_vpnv4_unicast_neighbors(mivrr101)
-    bovrr201 = XR_VPE('bovrr201', 'antonio', 'admin')
-    netconf_requests_isis_neighbors(bovrr201)
-    netconf_requests_bgp_vpnv4_unicast_neighbors(bovrr201)        
-
-    timestr = time.strftime("%Y%m%d-%H%M%S")
-    db = shelve.open('devicedb-' + timestr)
-    for obj in (mivpe015, mivpe016, mivar102, mivar202, navar101, navar201, navpe225, navpe226, mivrr101, bovrr201):
-        db[obj.devicename] = obj
-    db.close()
-
-
+  #print(interact())
+  
+  parser = argparse.ArgumentParser()
+  parser.add_argument("--login", required = "True", help="TACACS login authentication")
+  parser.add_argument("--password", help="TACACS password authentication")
+  parser.add_argument('-a', '--ask-pass', action='store_true', help='Prompt for password to login to the device')
+  args = parser.parse_args()
+  
+  if not args.ask_pass:
+    args.password = input("Enter password: ")
+  else:
+    args.password = getpass ("Enter password: ")
     
+  username = args.login
+  userpassword = args.password
+  
+  DeviceList =[]
+  print('Device list: ')
+  while True:
+    try:
+      reply = input() #input('Insericei un device >')
+    except EOFError:
+      break
+    else:
+      DeviceList.append(reply)
+  print(DeviceList)
+  
+  #creo le instnze della classe XR_VPE, le istanze vengono messe in un dizionairio che ha per chiave il nome del device    
+  InstanceDictionary = {}    
+  for name in DeviceList:
+    InstanceDictionary[name] = XR_VPE(name, username, userpassword)
+  
+  #Contatti i device e raccolgo le informazioni in uno shelve
+  timestr = time.strftime("%Y%m%d-%H%M%S")
+  db = shelve.open('devicedb-' + timestr)    
+  for dev in InstanceDictionary:
+    netconf_requests_isis_neighbors(InstanceDictionary[dev])
+    netconf_requests_bgp_vpnv4_unicast_neighbors(InstanceDictionary[dev])
+    db[dev] = InstanceDictionary[dev]
+  db.close()
 
-  
-  
-  
-  
-  # print(db['mivpe015'])
-  # db.close()
-  #print(tabulate(list(db['mivpe015']['isis-neighbors']()), headers, tablefmt="fancy_grid"))
+ 
