@@ -1,6 +1,6 @@
 from labnet import XR_VPE
 import shelve
-db = shelve.open('devicedb-20240127-160348')
+db = shelve.open('devicedb-20240322-141902')
 print(len(db))
 print(list(db.keys()))
 for key in db:
